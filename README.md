@@ -9,7 +9,6 @@ If you wish to contribute [email us at: info@megam.io](info@megam.io)
 * [Introduction](https://docs.megam.io)
 * [Release Notes](http://docs.megam.io/releasenotes/)
 * [Vertice Forum](https://forum.megam.io/)
-* [![Gitter](https://badges.gitter.im/megamsys/vertice.svg)](https://gitter.im/megamsys/vertice?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ***
 
@@ -20,8 +19,6 @@ Jump to: [First steps](#first) - [Setting up a development environment](#setting
 For external contributors here are the guidelines.
 
 - You should have completed `Github training` [https://try.github.io](https://try.github.io/levels/1/challenges/1)
-
-- Indicate the hack you wish to do connecting via [![Gitter](https://badges.gitter.im/megamsys/vertice.svg)](https://gitter.im/megamsys/vertice?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 - Sign the contribution agreement.
 
