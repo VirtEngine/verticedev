@@ -1,10 +1,12 @@
 # Writing an API
 
-The REST api needs to be changed for 2.0 since we'll no longer use the HMAC based approach. We'll rather use BasicAuth (username/password) or
+The REST api needs to be changed for 2.0 since we'll no longer use the HMAC based approach. We'll rather use BasicAuth (username/password) or AuthenticationToken.
 
 # Solution Overview
 
 We deal with the changes needed for the API to work with 2.0. We are go over one api `marketplaces` here.
+
+We will use the rubygem [kubeclient](https://github.com/abonas/kubeclient). Please remove **megam_api** and include `kubeclient` in the Gemfile of 2.0 code.
 
 ### nilavu.conf
 
