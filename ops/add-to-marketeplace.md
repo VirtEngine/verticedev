@@ -6,7 +6,9 @@ Hopefully your have customized your image and taken a snapshot from MegamVertice
 
 ## Step 1: ssh into your MegamVertice Master
 
+```
 $ ssh <userid>@megamvertice.master
+```
 
 ## Step 2: cqlsh into your cassandra database
 
