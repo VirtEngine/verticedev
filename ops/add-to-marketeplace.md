@@ -51,7 +51,7 @@ $ cp ghost.png /var/www/virtenginenilavu/public/brands *size 32 x 32
 $ cp ghost.png /var/www/virtenginenilavu/public/brands/saas *size 187 x 100
 ```
 
-## Step 4: Restart VirtEngine UI (virtenginenilavu)
+## Step 4: Restart MegamVertice UI (virtenginenilavu)
 
 ```
 $ cd /var/www/virtenginenilavu
