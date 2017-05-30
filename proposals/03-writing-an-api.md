@@ -80,4 +80,26 @@ Api::Marketplaces.instance.list(params).marketplace_groups
 
 ```
 
+First List all Marketplaces from Template resources
+
+ Get Templates using Kubeclient get_templates json and convert it to megam objects (marketplace collection json)
+
+	Get flavor,provided_by,cattype, url  and decriptions from annotations
+
+  envs from services
+
+  Plans from Parameter VERSION and its value and descrtion
+
+  Each Kind will be stored as key and value json in inputs field for example key is DeploymentConfig values will be json string
+
+ From Megam objects to Template
+
+   from template annotations from the fields flavor,provided_by,cattype, url, images
+
+   form Objecst Based on values of envs and inputs
+
+  envs build as service 
+
+
+
 In you case you need debug the same way to modify the data output of an API.
