@@ -44,17 +44,17 @@ INSERT INTO marketplaces (settings_name, cattype, flavor, image, catorder, url, 
 Make sure you have two product pictures named as ghost.png with sizes (187 x 100), (32 x 32)
 
 ```
-$ cd /var/www/virtenginenilavu
+$ cd /var/www/verticenilavu
 
-$ cp ghost.png /var/www/virtenginenilavu/public/brands *size 32 x 32
+$ cp ghost.png /var/www/verticenilavu/public/brands *size 32 x 32
 
-$ cp ghost.png /var/www/virtenginenilavu/public/brands/saas *size 187 x 100
+$ cp ghost.png /var/www/verticenilavu/public/brands/saas *size 187 x 100
 ```
 
-## Step 4: Restart MegamVertice UI (virtenginenilavu)
+## Step 4: Restart MegamVertice UI (verticenilavu)
 
 ```
-$ cd /var/www/virtenginenilavu
+$ cd /var/www/verticenilavu
 
 $ rake assets:clean
 
