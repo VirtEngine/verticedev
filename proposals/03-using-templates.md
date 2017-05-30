@@ -257,9 +257,13 @@ ApiDispatcher have to ensure the data with values of ssh-privatekey and ssh-publ
 
 List secrets GET using bellow request.
 
+client = Kubeclient::Client.new('http://localhost:8080/apis/batch', 'v1')
+
+secrets = client.get_secrets
+
 ApiDispatcher send parsed Megam ruby object.
 
-Show ssh keys
+Show ssh keys list
 
 #### Launcher moves to Step 2
 
