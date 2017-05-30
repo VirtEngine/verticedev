@@ -1,8 +1,8 @@
 # Add software in Marketplace
 
-Here are the steps to configure your site’s marketplace manually.
+Here are the steps to configure your site’s marketplace manually. The motivation here is to add your own apps in the marketplace.
 
-Hopefully your have customized your image and taken a snapshot from MegamVertice.
+Hopefully your have customized your virtual image and  taken a backup from MegamVertice.
 
 ## Step 1: ssh into your MegamVertice Master
 
