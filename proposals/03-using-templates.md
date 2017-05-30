@@ -30,11 +30,29 @@ It appears that templates are loaded for a file only by one. Read this [link](ht
 
 The template **must have** the following
 
-| Name  	| Description  	|
-|---	    |---	          |
-|   	    |   	          |
-|   	    |              	|
-|   	    |             	|  
+Annotations fields to category (VirtualMachine, Application) Templates
+
+| Fields       | Description                            |   Values |
+|--------------|----------------------------------------|----------|
+|annotations   |The detailed descrioptions and category fields | To category VirtualMachine or Application Templates
+|objects       |The objects are group of kinds, every template have atleast one kind   | objests like Pod, DeploymentConfig, Service
+|nodeSelector  |Used to select nodes based on key value match expressions
+|service       |Service is an object that expose ports and endpoint | 
+|parameters    |The parameters are used feed values on run time of template | Like name of virutal machine
+
+
+
+| Fields       | Description                            |   Values |
+|--------------|----------------------------------------|----------|
+|display-name  |The name of the marketplace item (Ghost)|  The name of the product Ghost                       |
+|provided_by   |The provider of the product             |  The currently supported providers *vertice, bitnami*|
+|cattype       |Category type to show under marketplaces|  The prepackaged apps can be added in COLLABORATION  |
+|catorder      |A numeric value show the order in which the category shall be shown| The category the value for COLLABORATION is 6|
+|image         |The name of picture to show the user     |ghost.png|
+|url           |The product website for more information |http://ghost.org|
+
+
+
 
 
 The template that are run as virtualmachines will have **cloud-init** inject data and hence the flags as per the link [here](https://github.com/Mirantis/virtlet/blob/fcf4615a65a13470c73ac44f8df316824e9c73e1/docs/design-proposals/cloud-init-data-generation.md) will have to be in the templates.
@@ -46,7 +64,49 @@ The different `category` templates are elaborated here:
 A sample template for Ubuntu is
 
 ```
+kind: Template
+apiVersion: v1
+metadata:
+  name: ubuntu
+  annotations:
+    openshift.io/display-name: Ubuntu
+    description: |-
+      Ubuntu is a Debian-based Linux operating system. Xenial Xerus is the Ubuntu codename for version 16.04 LTS of the Ubuntu Linux-based operating system., see http://www.ubuntu.com/server.
 
+      WARNING: Any data stored will be lost upon pod destruction.
+    iconClass: icon-machine
+    tags: torpeto,ubuntu
+    template.openshift.io/long-description: This template provides a standalone OpenNebula
+      master server with a database created.  The database is not stored on persistent storage,
+      so any restart of the service will result in all data being lost.
+    template.openshift.io/provider-display-name: Megam Systems.
+    template.openshift.io/documentation-url: https://docs.megam.io
+    template.openshift.io/support-url: https://github.com/megamsys/support
+    template.openshift.io/url: http://www.ubuntu.com/server
+    template.openshift.io/provided_by:  vertice
+    template.openshift.io/image: ubuntu.png
+    template.openshift.io/cattype: TORPEDO
+    template.openshift.io/catorder: 1
+    template.openshift.io/os: ubuntu
+labels:
+  template: ubuntu
+objects:
+- kind: Pod
+  apiVersion: v1
+  metadata:
+    name: "${TORPEDO_NAME}"
+    annotations:
+      kubernetes.io/target-runtime: virtlet
+  spec:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: extraRuntime
+              operator: In
+              values:
+              - virtlet
 ```
 
 ### Category: Apps
@@ -141,4 +201,4 @@ Show ssh keys
 
 #### Launcher moves to Step 2
 
-List Templates as per `List marketplace` 
+List Templates as per `List marketplace`
