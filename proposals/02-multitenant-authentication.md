@@ -2,11 +2,11 @@
 
 ## Motivation
 
-As our 2.0 is based on *openshift origin/kubernetes* which has ability to authenticate and authorize api requests. It doesn't provide multi-tenant ability with user management, this means we need to an authentication layer that MegamVertice can communicate.
+As our 2.0 is based on *openshift origin/kubernetes* which has ability to authenticate and authorize api requests. It doesn't provide multi-tenant ability with user management, this means we need to add an authentication layer that MegamVertice can communicate.
 
 For the *Onboard cloud project* we have externalized the auth to be managed using **Google**.
 
-Here we will have to build an **authserver** backed by LDAP using the same API that nilavu  uses. MegamVertice will integrate directory to the ldap.
+Here we will have to build an **authserver** backed by LDAP using the same API that nilavu  uses today. MegamVertice will integrate directly to the ldap.
 
 ## Solution Overview
 
