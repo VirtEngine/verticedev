@@ -46,11 +46,32 @@ For detailed architecture [refer slide-7](https://docs.google.com/presentation/d
 
 Hence we need an [authserver](https://github.com/megamsys/authserver) for usermanagement using `LDAP`. 
 
-`Openshift/origin` supports the provider `LDAP`.
+`Openshift/Origin` supports the provider `LDAP`.
 
-### REST
+## OCaml authserver
 
-Here are the API calls we'll cover, although we'll migrate to `gRPC` in the future.
+We are yet to coin a name for the server, but the purpose is clear as we have worked on [Onboard cloud - abcd project](https://github.com/megamsys/abcd) which used the OAuth technique. 
+
+This will be a REST based server (or) `gRPC`  based. 
+
+The OCaml authserver will provide 
+
+#### 2. Secure TLS
+
+We'll generate TLS certificate when the client starts and store it in **$MEGAM_HOME/<authserver>** path named **<authserver.key>** **<authserver.pem>**
+
+If Nilavu and the `OCaml authserver` run in different machines then make sure the **$MEGAM_HOME/<authserver>/*.*** files are copied over to the nilavu machine.
+
+We need the TLS key to help enable *system* to *system* communication. 
+
+#### 3. API Protection
+
+The user level multitenancy was handled historically using a cyptographic HMAC per user to access to server, (or) global service accounts or via userid/pw.
+
+
+#### 4. REST
+
+Here are the API calls we'll cover, although we'll migrate to `gRPC` in the future, as `OCaml gRPC` seems to missing.
 
 
 | Verb | REST                     | Description                                                                                                 |
@@ -62,9 +83,6 @@ Here are the API calls we'll cover, although we'll migrate to `gRPC` in the futu
 | POST | /accounts/update         | Modify an update                                                                                            |
 | POST | /accounts/password_reset | Reset the password by doing a due-diligence verification of the password_reset_token sent with userPassword |
 
-## OCaml authserver
-
-We are yet to coin a name for the server, but the purpose is clear as we have worked on [Onboard cloud - abcd project](https://github.com/megamsys/abcd).
 
 ### Native: Account
 
