@@ -36,11 +36,13 @@ The billing design will be covered in a separate documentation.
 
 ## Detailed design
 
-A `OCaml` based [authserver *name needed*](https://github.com/megamsys/authserver) will form the fulcrum for MegamVertice2.0 usermanagement.
+An `OCaml` based [authserver *name needed*](https://github.com/megamsys/authserver) will form the fulcrum for MegamVertice2.0 usermanagement.
 
 For detailed architecture [refer slide-7](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing) of Architecture v2.0.
 
-The reason we call [authserver](https://github.com/megamsys/authserver) as just usermanagement because `Openshift/Origin` doesn't have ability to create new users and manage them which is needed for SaaS products. `Openshift/Origin` has ability to authenticate when an user is available in a 3rd party system using `LDAP`, `OAuth` or other providers.
+The reason we need an [authserver](https://github.com/megamsys/authserver) for usermanagement since `Openshift/Origin` doesn't have ability to create new users and manage them which is needed for SaaS products. 
+
+`Openshift/Origin` has ability to authenticate when an user is available in a 3rd party system using `LDAP`, `OAuth` or other providers.
 
 Here we'll leverage `LDAPProvider`.
 
@@ -60,15 +62,15 @@ Here are the API calls we'll cover, although we'll migrate to `gRPC` in the futu
 
 # Native: Account
 
-Native `Account` means user management is handled in MegamVertice.
+`Native Account` means user management is handled in MegamVertice.
 
 This table may not be off much importance to nilavu, since the `AuthDispatcher` will act as a fascade to nilavu to feed the correct JSON as it uses today. We may have to trim some of the fields that are not used and which doesn't make sense.
 
-Hence nilavu `AuthDispatcher`, and the `User model` needs to trim the variables and change them accordingly.
+Nilavu `AuthDispatcher`, and the `User model` needs to trim the variables and change them accordingly.
 
 Nilavu `User model` needs to convert `integer` based edge comparison to `boolean based` flags to indicate `active, staged, blocked, suspended, approved`.
 
-This is needed for the  internals of the `authserver` which handles usermanagement using `LDAP.
+The below table is needed for the  internals of the `authserver` which handles usermanagement using `LDAP.
 
 
 | Cassandra               | LDAP                                  | Description                                                                                                            |
