@@ -40,11 +40,13 @@ An `OCaml` based [authserver - name needed](https://github.com/megamsys/authserv
 
 For detailed architecture [refer slide-7](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing) of Architecture v2.0.
 
-The reason we need an [authserver](https://github.com/megamsys/authserver) for usermanagement since `Openshift/Origin` doesn't have ability to create new users and manage them which is needed for SaaS products. 
+`Openshift/Origin` doesn't have ability to create new users and manage them which is needed for SaaS products. 
 
 `Openshift/Origin` has ability to authenticate when an user is available in a 3rd party system using `LDAP`, `OAuth` or other providers.
 
-Here we'll leverage `LDAPProvider`.
+Hence we need an [authserver](https://github.com/megamsys/authserver) for usermanagement using `LDAP`. 
+
+`Openshift/origin` supports the provider `LDAP`.
 
 ### REST
 
@@ -60,7 +62,11 @@ Here are the API calls we'll cover, although we'll migrate to `gRPC` in the futu
 | POST | /accounts/update         | Modify an update                                                                                            |
 | POST | /accounts/password_reset | Reset the password by doing a due-diligence verification of the password_reset_token sent with userPassword |
 
-# Native: Account
+## OCaml authserver
+
+We are yet to coin a name for the server, but the purpose is clear as we have worked on [Onboard cloud - abcd project](https://github.com/megamsys/abcd).
+
+### Native: Account
 
 `Native Account` means user management is handled in MegamVertice.
 
