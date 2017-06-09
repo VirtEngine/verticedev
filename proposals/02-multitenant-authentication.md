@@ -36,7 +36,7 @@ The billing design will be covered in a separate documentation.
 
 ## Detailed design
 
-An `OCaml` based [authserver *name needed*](https://github.com/megamsys/authserver) will form the fulcrum for MegamVertice2.0 usermanagement.
+An `OCaml` based [authserver - name needed](https://github.com/megamsys/authserver) will form the fulcrum for MegamVertice2.0 usermanagement.
 
 For detailed architecture [refer slide-7](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing) of Architecture v2.0.
 
