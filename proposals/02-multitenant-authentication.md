@@ -36,51 +36,50 @@ The billing design will be covered in a separate documentation.
 
 ## Detailed design
 
-An `OCaml` based [authserver - name needed](https://github.com/megamsys/authserver) will form the fulcrum for MegamVertice2.0 usermanagement.
+An `OCaml` based [authserver - name needed](https://github.com/megamsys/authserver) will form the fulcrum for MegamVertice2.0 user management.
 
 For detailed architecture [refer slide-7](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing) of Architecture v2.0.
 
-`Openshift/Origin` doesn't have ability to create new users and manage them which is needed for SaaS products. 
+`Openshift/Origin` doesn't have ability to create new users and manage them. But SaaS products need them.
 
-`Openshift/Origin` has ability to authenticate when an user is available in a 3rd party system using `LDAP`, `OAuth` or other providers.
+`Openshift/Origin` has ability to authenticate when an user is available in a 3rd party system like `LDAP`, `OAuth providers`, `Basic auth using http via a flat file`.
 
-Hence we need an [authserver](https://github.com/megamsys/authserver) for usermanagement using `LDAP`. 
+Hence we need a REST based [authserver](https://github.com/megamsys/authserver) for user management backed by `LDAP`.
 
-`Openshift/Origin` supports the provider `LDAP`.
+As `Openshift/Origin` supports `LDAP`, it will directly bind to the `LDAP` for authentication verification.
 
-## OCaml authserver
+### OCaml authserver
 
-We are yet to coin a name for the server, but the purpose is clear as we have worked on [Onboard cloud - abcd project](https://github.com/megamsys/abcd) which used the OAuth technique. 
+We are yet to coin a name for the server, but the purpose is clear as we have worked on [Onboard cloud - abcd project](https://github.com/megamsys/abcd) which used the OAuth technique.
 
-This will be a REST based server (or) `gRPC`  based. 
+This will be a REST based server (or) `gRPC`  based.  Apparently `gRPC` isn't available yet for OCaml.
 
-The OCaml authserver will provide 
+The OCaml authserver requirements are:
 
-#### 2. Secure TLS
+#### 1. Secure TLS for system to system communication
 
-We'll generate TLS certificate when the client starts and store it in **$MEGAM_HOME/<authserver>** path named **<authserver.key>** **<authserver.pem>**
+We'll generate TLS certificate when the authserver starts and store it in **$MEGAM_HOME/authserver** path. The security key files will be named as **<authserver.key>** and **<authserver.pem>**
 
-If Nilavu and the `OCaml authserver` run in different machines then make sure the **$MEGAM_HOME/<authserver>/*.*** files are copied over to the nilavu machine.
+If `Nilavu` and the `OCaml authserver` run in different machines then we have to make sure the **$MEGAM_HOME/authserver/keyfiles** are copied over to the `nilavu` machine in the directory mentioned above.
 
-We need the TLS key to help enable *system* to *system* communication. 
 
-#### 3. API Protection
+#### 2. API Protection
 
-The user level multitenancy was handled historically using a cyptographic HMAC per user to access to server, (or) global service accounts or via userid/pw.
+The user level multitenancy was handled historically used a cyptographic HMAC per user to access the API, (or) global service accounts (or) BasicAuth: userid/pw.  We had proctected every API request.
+
+In this case we protect systems using `TLS`. The `login`, `account.show` are handled by `Openshift` API via the kubeclient gem.
 
 
 #### 4. REST
 
-Here are the API calls we'll cover, although we'll migrate to `gRPC` in the future, as `OCaml gRPC` seems to missing.
+Here are the API calls we'll cover, although we'll migrate to `gRPC` in the future, as `OCaml gRPC` seems to be missing.
 
 
 | Verb | REST                     | Description                                                                                                 |
 |------|--------------------------|-------------------------------------------------------------------------------------------------------------|
-| GET  | /accounts/:email         | Show the details an account                                                                                 |
 | GET  | /accounts/forgot/:email  | Initiate the process where an user forgot an email. Generate a unique token and store it in userPassword    |
-| POST | /accounts/login          | Logs In an user by verifying the password                                                                   |
-| POST | /accounts/content        | Create a new user                                                                                           |
-| POST | /accounts/update         | Modify an update                                                                                            |
+| POST | /accounts/content        | Create a new user                    |
+| POST | /accounts/update         | Modify an user                       |
 | POST | /accounts/password_reset | Reset the password by doing a due-diligence verification of the password_reset_token sent with userPassword |
 
 
@@ -88,13 +87,13 @@ Here are the API calls we'll cover, although we'll migrate to `gRPC` in the futu
 
 `Native Account` means user management is handled in MegamVertice.
 
-This table may not be off much importance to nilavu, since the `AuthDispatcher` will act as a fascade to nilavu to feed the correct JSON as it uses today. We may have to trim some of the fields that are not used and which doesn't make sense.
-
 Nilavu `AuthDispatcher`, and the `User model` needs to trim the variables and change them accordingly.
 
 Nilavu `User model` needs to convert `integer` based edge comparison to `boolean based` flags to indicate `active, staged, blocked, suspended, approved`.
 
-The below table is needed for the  internals of the `authserver` which handles usermanagement using `LDAP.
+The below table is needed for the  internals of the `authserver` which handles user management backed by `LDAP`.
+
+This table may not be off much importance to nilavu, since the `AuthDispatcher` will act as a fascade to nilavu to feed the correct JSON as it uses today. We may have to trim some of the fields that are not used and which doesn't make sense.
 
 
 | Cassandra               | LDAP                                  | Description                                                                                                            |
@@ -188,7 +187,7 @@ member: cn=road runner,ou=people,dc=megam,dc=local
 
 ## OAuth: Account
 
-Upon authentication with the OAuth provier, we do a `POST: Account` if an account doesn't exists.
+Upon authentication with the OAuth provier, we create an `Account` in the `authserver` if it doesn't exists. The rest of the workflow is as per `NativeAccount`
 
 ### Development setup
 
