@@ -48,7 +48,7 @@ Any API request it receives will need the bearer token which is compared with wh
 
 If it didn't find anything then **MOOV** does a bind to the openldap(slapd) with search on `cn=email id`. Upon successful validation, a token is saved in API `oauthaccesstokens`.
 
-### 3. How will third party systems (WHMCS) talk to MegamVertice
+### 3. How will third party systems (WHMCS) talk to MOOV
 
 We will have *bots* based on **ServiceAccounts** for every 3rd party system integration. The **billerbot** in our case will handle billing related ops.
 
