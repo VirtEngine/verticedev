@@ -1,52 +1,69 @@
 # Multi tenant authentication: 2.0
 
+*Terminology*,
+
+We'll use `MOOV` to refer `MegamVertice Engine`  based on *openshfit/origin*
+We'll use `MegamVertice2.0` to refer the 2.0 release of `MegamVertice`  based on *openshfit/origin*
+
 ## Motivation
 
-As our 2.0 is based on *openshift origin/kubernetes* which has ability to authenticate and authorize api requests. It doesn't provide multi-tenant ability with user management, this means we need to add an authentication layer that MegamVertice can communicate.
+*openshift origin/kubernetes* assumes that the user is created, updated in a 3rd party system. It assumes there exists an user and provides identityproviders to authenticate/authorize.
 
-For the *Onboard cloud project* we have externalized the auth to be managed using **Google**.
+`Openshift/Origin` doesn't have ability to create new users and manage them. But SaaS products need them.
 
-Here we will have to build an **authserver** backed by LDAP using the same API that nilavu  uses today. MegamVertice will integrate directly to the ldap.
+`Openshift/Origin` has ability to authenticate an user when available in a 3rd party system like `LDAP`, `OAuth providers`, `Basic auth using http via a flat file`.
+
+For the *Onboard cloud project* we have externalized the auth to be managed using **Google** and have used the `OAuthProvider` in openshift.
+
+But for MegamVertice 2.0 we need ability to create, update users using an identityprovider plugin supported by *openshift origin/kubernetes*. So once an user is available in a 3rd party system *openshift origin* has ability to authenticate and authorize api requests.
+
+As `Openshift/Origin` supports `LDAP`, it will directly bind to the `LDAP` for authentication verification.
+
+This mean we need to build an authentication layer that MegamVertice can communicate for user creation, updation using REST based API or gRPC.
+
+Here we will build an **authserver** backed by LDAP using the same API that nilavu  uses today. **MOOV** based on *openshfit/origin* will integrate directly to the identityprovider - LDAP.
 
 ## Solution Overview
 
 The auth architecture link [refer slide6](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing)
 
-We'll have to think through on
+Broadly we need focus on the usecases
 
 1. How does an user authenticate with Nilavu ?
 2. How does MegamVertice authenticate an API request  ?
 3. How do our third party systems (WHMCS) talk to MegamVertice ?
 
+
 ### 1. How does an user authenticate with Nilavu ?
 
-Nilavu will use the same API and call the **authserver** which is backed by LDAP.
+Nilavu will use the same API and call the **authserver** which is backed by LDAP to create/update users. MOOV will provide ability to authenticate and authorize the user using the API.
 
-The crux here is make sure the engine based on **openshift origin/kubernetes** can talk to the authentication server.
+The crux here is make sure that **MOOV**  can talk to the authentication server using its identityprovider.
 
-### 2. How does MegamVertice authenticate an API request
+### 2. How does MOOV authenticate an API request
 
-We refer *MegamVertice* in the context of **openshift origin/kubernetes** modified to suit our need. This engine will be configured to authenticate using **LDAPProvider**.
+**MOOV** upon authentication with the identityprovider LDAP generates bearer token and stores then in the API   `oauthaccesstokens`.
+
+Any API request it receives will need the bearer token which is compared with what is available for that user in `oauthaccesstokens`.
+
+If it didn't find anything then **MOOV** does a bind to the openldap(slapd) with search on `cn=email id`. Upon successful validation, a token is saved in API `oauthaccesstokens`.
 
 ### 3. How will third party systems (WHMCS) talk to MegamVertice
 
-We will have *bot*  **ServiceAccounts** for every 3rd party system integration. The **billbot** in our case will handle billing related ops.
+We will have *bots* based on **ServiceAccounts** for every 3rd party system integration. The **billerbot** in our case will handle billing related ops.
 
 The billing design will be covered in a separate documentation.
 
 ## Detailed design
 
-An `OCaml` based [authserver - name needed](https://github.com/megamsys/authserver) will form the fulcrum for MegamVertice2.0 user management.
+We'll use `OCaml` as its functional and native, super fast.
+
+An `OCaml` based [authserver - name needed](https://github.com/megamsys/authserver) will form the fulcrum for **MegamVertice2.0** user management.
+
+Its a simple server that accepts user creation, user updation into LDAP.
 
 For detailed architecture [refer slide-7](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing) of Architecture v2.0.
 
-`Openshift/Origin` doesn't have ability to create new users and manage them. But SaaS products need them.
-
-`Openshift/Origin` has ability to authenticate when an user is available in a 3rd party system like `LDAP`, `OAuth providers`, `Basic auth using http via a flat file`.
-
-Hence we need a REST based [authserver](https://github.com/megamsys/authserver) for user management backed by `LDAP`.
-
-As `Openshift/Origin` supports `LDAP`, it will directly bind to the `LDAP` for authentication verification.
 
 ### OCaml authserver
 
@@ -85,16 +102,18 @@ Here are the API calls we'll cover, although we'll migrate to `gRPC` in the futu
 
 ### Native: Account
 
-`Native Account` means user management is handled in MegamVertice.
+`Native Account` means user management is handled in MegamVertice2.0.
 
-Nilavu `AuthDispatcher`, and the `User model` needs to trim the variables and change them accordingly.
+Nilavu will have an `AuthDispatcher` which will perform REST calls to the `OCaml auth server`.
 
-Nilavu `User model` needs to convert `integer` based edge comparison to `boolean based` flags to indicate `active, staged, blocked, suspended, approved`.
+Nilavu must have its `User model` trimmed with the `not needed` variables. Please refer the table.
+
+The `User model` must convert `integer` based edge comparison to `boolean based` flags to indicate `active, staged, blocked, suspended, approved`.
 
 The below table is needed for the  internals of the `authserver` which handles user management backed by `LDAP`.
 
-This table may not be off much importance to nilavu, since the `AuthDispatcher` will act as a fascade to nilavu to feed the correct JSON as it uses today. We may have to trim some of the fields that are not used and which doesn't make sense.
-
+This table may not be off much importance to nilavu, since the `AuthDispatcher` will act as a fascade to `User model` which will  feed the correct JSON as it uses today. We may have to trim some of the fields that are not used and which doesn't make sense.
+Please pay attention to that.
 
 | Cassandra               | LDAP                                  | Description                                                                                                            |
 |-------------------------|---------------------------------------|------------------------------------------------------------------------------------------------------------------------|
@@ -127,20 +146,18 @@ This table may not be off much importance to nilavu, since the `AuthDispatcher` 
 
 ```
 
-The LDIF record. Here we create an user with email `kenji.kouda@jap.ai` in dc `example.org`
+The LDIF record. Here we create an user with email `kenji.kouda@jap.ai` in dc `megam.org`
 
 ##
-
-# Entry 1: cn=kenji.kouda@jap.ai,dc=example,dc=org
-dn: cn=kenji.kouda@jap.ai,dc=example,dc=org
+# Entry 1: cn=kenji.kouda@jap.ai,dc=megam,dc=org
+dn: cn=kenji.kouda@jap.ai,dc=megam,dc=org
 cn: kenji.kouda@jap.ai
 employeetype: admin
 givenname: kenji
 iphostnumber: 192.168.1.1
 mail: kenji.kouda@jap.ai
 objectclass: inetOrgPerson
-objectclass: topshadowexpire: 1
-
+objectclass: top
 objectclass: shadowAccount
 objectclass: ipHost
 shadowexpire: 1
@@ -148,74 +165,47 @@ shadowflag: 1
 shadowinactive: 0
 sn: kouda
 uid: kenjikouda
-userpassword: {SSHA}+21Wj2mKpQV0k9z4wyF/aHK82i/oQkVo
-
-```
-
-Groups
-
-```
-# LDIF fragment to create group branch under root
-
-dn: ou=groups,dc=megam, dc=local
-objectclass:organizationalunit
-ou: groups
-description: generic groups branch
-
-# Create the admins entry
-
-dn: cn=admins,ou=groups,dc=megam,dc=local
-objectclass: groupofnames
-cn: admins
-description: Megam Vertice Admin Group
-# add the group members all of which are
-# assumed to exist under people
-member: cn=road runner,ou=people,dc=megam,dc=local
-member: cn=micky mouse,ou=people,dc=megam,dc=local
-
-# Create the cluster-admins entry
-
-dn: cn=clusteradmins,ou=groups,dc=megam,dc=local
-objectclass: groupofnames
-cn: clusteradmins
-description: Megam Vertice Cluster adminitrators
-# add the group members all of which are
-# assumed to exist under people
-member: cn=road runner,ou=people,dc=megam,dc=local
+userpassword: {MD5}X03MO1qnZdYdgyfeuILPmQ==
 
 ```
 
 ## OAuth: Account
 
-Upon authentication with the OAuth provier, we create an `Account` in the `authserver` if it doesn't exists. The rest of the workflow is as per `NativeAccount`
+Upon authentication with the OAuth provider like `GitHub`, `Google`, we create an `Account` in the `authserver` if it doesn't exists. The rest of the workflow is as per `NativeAccount`
 
 ### Development setup
 
-1. Run openldap
-
-```
-docker run --name openldap --detach osixia/openldap:1.1.8
+1. Run slapd (openldap)
 
 ```
 
-2. *optional* Get the openldap servers and start a ldapadmin
+docker run --name slapd --env LDAP_ORGANISATION="users" --env LDAP_DOMAIN="megam.org" \
+--env LDAP_ADMIN_PASSWORD="chennai28v" --detach osixia/openldap:1.1.8
 
-This step is optional and only needed in development, since we can manage using command line.
+docker logs -f slapd
 
 ```
 
-LDAP_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" openldap)
+2. *optional* Run sladpui
+
+slapdui is a web based ldap administration to manage slapd.
+
+This step is optional and only needed in development, as `slapd` can be managed from command line.
+
+```
+
+LDAP_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" sldapd)
 
 $ echo $LDAP_IP
 172.17.0.2
 
-docker run --name ldapadmin -p 6443:443 \
+docker run --name slapdui -p 6443:443 \
        --env PHPLDAPADMIN_LDAP_HOSTS=$LDAP_IP \
        --detach osixia/phpldapadmin:0.6.12
 
 ```
 
-3.  Browse openldap using the ldapadmin
+3.  Open sladpui web administration
 
 ```
 
@@ -228,10 +218,123 @@ $ echo $LDAP_ADMIN
 
 Type [https://$LDAP_ADMIN:6443](https://$LDAP_ADMIN:6443) to manage LDAP accounts.
 
+Login: **username** `cn=admin,dc=megam,dc=org` **password** `chennai28v`
+
+You can see that an admin account exists.
+
+4.  Openshift configuration
+
+We'll have make sure Openshift runs with LDAPPasswordIdentityProvider. To do that,
+
+Open the file `$OPENSHIFT_HOME/openshift.local.config/master/master-config.yaml`
+
+```yaml
+
+oauthConfig:
+  alwaysShowProviderSelection: false
+  assetPublicURL: https://192.168.1.11:8443/console/
+  grantConfig:
+    method: auto
+    serviceAccountMethod: prompt
+  identityProviders:
+  - challenge: true
+    login: true
+    mappingMethod: claim
+    name: "my-ldap-provider"
+    provider:
+      apiVersion: v1
+      kind: LDAPPasswordIdentityProvider
+      attributes:
+        id:
+        - dn
+        email:
+        - mail
+        name:
+        - cn
+        preferredUsername:
+        - uid
+      bindDN: "cn=admin,dc=megam,dc=org"
+      bindPassword: "chennai28v"
+      insecure: true
+      url: "ldap://172.17.0.2/dc=megam,dc=org?cn"              
+
+```
+
+Refer this link for the flag details. [LDAPProvider](https://docs.openshift.org/latest/install_config/configuring_authentication.html#LDAPPasswordIdentityProvider)
+
+
+5. Setup an account manually
+
+Open the `slapdui` as per `Step 4`
+
+Just import another account from the below LDIF format. whose credentials are
+
+username: rajt@code.in
+password: password
+
+```
+
+The LDIF record. Here we create an user with email `rajt@code.in` and password `password` in dc `megam.org`
+
+The `userpassword` is Base64 encoded version of md5 encrypted string. So in our case the text is "password" which was md5 encrypted and then Base64 encoded to produce `X03MO1qnZdYdgyfeuILPmQ==`
+
+##
+# Entry 1: cn=raj.t@code.in,dc=megam,dc=org
+dn: cn=raj.t@code.in,dc=megam,dc=org
+cn: raj.t@code.in
+employeetype: admin
+givenname: rajt
+iphostnumber: 192.168.1.11
+mail: rajt@code.ai
+objectclass: inetOrgPerson
+objectclass: top
+objectclass: shadowAccount
+objectclass: ipHost
+shadowexpire: 1
+shadowflag: 1
+shadowinactive: 0
+sn: thilak
+uid: rajt
+userpassword: {MD5}X03MO1qnZdYdgyfeuILPmQ==
+
+```
+
+6. Nilavu login in
+
+Try logging in from the UI, once you are in. You can use the CLI to see the happenings on the **MOOV**
+
+A token is produced.
+
+```
+
+sudo ./oc get oauthaccesstokens | grep kenji.kouda@jap.ai
+SNoiBTIemHUfD46PrBt8YcYBlB0ObTlVAZbYawZC-EU   kenji.kouda@jap.ai   openshift-challenging-client   2017-06-12 17:17:02 +0530 IST   2017-06-13 17:17:02 +0530 IST   https://192.168.1.11:8443/oauth/token/implicit   user:full
+
+```
+
+An user is created.
+
+```
+
+sudo ./oc get users | grep kenji
+kenji.kouda@jap.ai   dc5deaac-4f63-11e7-8bb8-848f69adc5b4   kenji.kouda@jap.ai   my-ldap-provider:cn=kenji.kouda@jap.ai,dc=megam,dc=org
+
+```
 
 ## Production setup
 
 1. Run openldap in TLS [section - Use auto-generated certificate](https://github.com/osixia/docker-openldap#tls)
+
+2. A script that sets up the full process for authentication (containers, and LDAP configuration)
+
+```
+
+curl https://get.megam.io/auth megam.org testing4
+
+#dc=megam.org
+#admin password=testing4
+
+```
 
 
 # References
