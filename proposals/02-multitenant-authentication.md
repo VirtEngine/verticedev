@@ -19,7 +19,7 @@ But for MegamVertice 2.0 we need ability to create, update users using an identi
 
 As `Openshift/Origin` supports `LDAP`, it will directly bind to the `LDAP` for authentication verification.
 
-This mean we need to build an authentication layer that MegamVertice can communicate for user creation, updation using REST based API or gRPC.
+This mean we need to build an authentication layer that **Nilavu** & **MOOV** can communicate for user creation, updation using REST based API or gRPC.
 
 Here we will build an **authserver** backed by LDAP using the same API that nilavu  uses today. **MOOV** based on *openshfit/origin* will integrate directly to the identityprovider - LDAP.
 
