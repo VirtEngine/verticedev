@@ -30,8 +30,8 @@ The auth architecture link [refer slide6](https://docs.google.com/presentation/d
 Broadly we need focus on the usecases
 
 1. How does an user authenticate with Nilavu ?
-2. How does MegamVertice authenticate an API request  ?
-3. How do our third party systems (WHMCS) talk to MegamVertice ?
+2. How does MOOV authenticate an API request  ?
+3. How do our third party systems (WHMCS) talk to MOOV ?
 
 
 ### 1. How does an user authenticate with Nilavu ?
