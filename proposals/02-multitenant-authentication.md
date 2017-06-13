@@ -3,50 +3,53 @@
 *Terminology*,
 
 We'll use `MOOV` to refer `MegamVertice Engine`  based on *openshfit/origin*
-We'll use `MegamVertice2.0` to refer the 2.0 release of `MegamVertice`  based on *openshfit/origin*
+We'll use `MegamVertice2.0` to refer 2.0 release of `MegamVertice` based on *openshfit/origin*
 
 ## Motivation
 
-*openshift origin/kubernetes* assumes that the user is created, updated in a 3rd party system. It assumes there exists an user and provides identityproviders to authenticate/authorize.
+*Openshift Origin* assumes that the user is created, updated in a 3rd party system. It assumes there exists an user and provides identityproviders to authenticate/authorize.
 
-`Openshift/Origin` doesn't have ability to create new users and manage them. But SaaS products need them.
+*Openshift Origin* doesn't have ability to create new users and manage them. But SaaS products need them.
 
-`Openshift/Origin` has ability to authenticate an user when available in a 3rd party system like `LDAP`, `OAuth providers`, `Basic auth using http via a flat file`.
+*Openshift Origin* has ability to authenticate an user when available in a 3rd party system like `LDAP`, `OAuth providers`, `Basic auth using http via a flat file`.
 
-For the *Onboard cloud project* we have externalized the auth to be managed using **Google** and have used the `OAuthProvider` in openshift.
+For the *Onboard cloud project* we have externalized the auth to be managed using `Google` and have used the identity provider - `OAuthProvider` in openshift.
 
-But for MegamVertice 2.0 we need ability to create, update users using an identityprovider plugin supported by *openshift origin/kubernetes*. So once an user is available in a 3rd party system *openshift origin* has ability to authenticate and authorize api requests.
+For MegamVertice2.0 we need ability to create, update users using an identityprovider plugin supported by *Openshift Origin*. 
 
-As `Openshift/Origin` supports `LDAP`, it will directly bind to the `LDAP` for authentication verification.
+So once an user is available in a 3rd party system *Openshift Origin* has ability to authenticate and authorize api requests for that user.
 
-This mean we need to build an authentication layer that **Nilavu** & **MOOV** can communicate for user creation, updation using REST based API or gRPC.
+As *Openshift Origin* supports `LDAP`, it will directly bind to the `LDAP` for authentication verification.
 
-Here we will build an **authserver** backed by LDAP using the same API that nilavu  uses today. **MOOV** based on *openshfit/origin* will integrate directly to the identityprovider - LDAP.
+This mean we need to build an authentication layer that **Nilavu** & **MOOV** can communicate. **Nilavu** must be able to do user creation, updation using REST based API or gRPC. **MOOV** must be able to authenticate the user.
+
+So we will build an **authserver** backed by LDAP accessed via a REST API. The REST API will talk the same JSON as used by gateway today. So nilavu  doesn't have to worry much. 
+
+**MOOV** based on *Openshfit Origin* will integrate directly to the identityprovider - LDAP.
 
 ## Solution Overview
 
 The auth architecture link [refer slide6](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing)
 
-Broadly we need focus on the usecases
+We focus on the usecases
 
-1. How does an user authenticate with Nilavu ?
+1. How does an user onboardin Nilavu ?
 2. How does MOOV authenticate an API request  ?
 3. How do our third party systems (WHMCS) talk to MOOV ?
 
 
-### 1. How does an user authenticate with Nilavu ?
+### 1. How does an user onboard in Nilavu ?
 
-Nilavu will use the same API and call the **authserver** which is backed by LDAP to create/update users. MOOV will provide ability to authenticate and authorize the user using the API.
-
-The crux here is make sure that **MOOV**  can talk to the authentication server using its identityprovider.
+Nilavu will use the API and call the **authserver** which is backed by LDAP to create/update users. Nilavu will call **MOOV** API for  authentication.
 
 ### 2. How does MOOV authenticate an API request
 
-**MOOV** upon authentication with the identityprovider LDAP generates bearer token and stores then in the API   `oauthaccesstokens`.
+**MOOV** uses LDAP bind operation using the `cn=admin,dc=megam,dc=org` distinguished admin userid of LDAP and its password. 
 
-Any API request it receives will need the bearer token which is compared with what is available for that user in `oauthaccesstokens`.
+Any API request **MOOV** receives will need the bearer token which is compared with what is available for that user in `oauthaccesstokens`.
 
-If it didn't find anything then **MOOV** does a bind to the openldap(slapd) with search on `cn=email id`. Upon successful validation, a token is saved in API `oauthaccesstokens`.
+If it didn't find anything then **MOOV** using the bind connection will do a search by `cn=email id`. Upon successful validation, a token is saved in API `oauthaccesstokens`.
+
 
 ### 3. How will third party systems (WHMCS) talk to MOOV
 
@@ -56,13 +59,20 @@ The billing design will be covered in a separate documentation.
 
 ## Detailed design
 
-We'll use `OCaml` as its functional and native, super fast.
+We'll use `OCaml` as its functional, native and super fast. 
+
+Some of projects that use OCaml are
+
+- [Janestreet](https://www.youtube.com/watch?v=hKcOkWzj0_s)
+- [Facebook Reactive](https://facebook.github.io/reason/)
+- [Rust compiler in OCaml](https://github.com/rust-lang/rust/tree/ef75860a0a72f79f97216f8aaa5b388d98da6480/src/boot)
+- [MirageOS](http://mirage.io/)
 
 An `OCaml` based [authserver - name needed](https://github.com/megamsys/authserver) will form the fulcrum for **MegamVertice2.0** user management.
 
-Its a simple server that accepts user creation, user updation into LDAP.
+Its a simple server that accepts user creation, user updation backed by LDAP.
 
-For detailed architecture [refer slide-7](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing) of Architecture v2.0.
+For detailed architecture [Refer slide-7](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing) of Architecture v2.0.
 
 
 ### OCaml authserver
