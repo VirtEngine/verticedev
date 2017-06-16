@@ -59,7 +59,19 @@ The billing design will be covered in a separate documentation.
 
 ## Detailed design
 
-We'll use `OCaml` as its functional, native and super fast. 
+We wanted to pick another language that is native and other than *golang*, *scala*, *python*..
+
+### Choice of language 
+
+We'll use [Rust lang](https://rust-lang.org) as its native and super fast. 
+
+Some of projects that use **Rust** are
+
+- [Habitat.sh](https://habitat.sh)
+
+An `Rust` based [authserver - OJa](https://github.com/megamsys/authserver) will form the fulcrum for **MegamVertice2.0** user management.
+
+We'll had originally intended to `OCaml` as its functional, native and super fast. 
 
 Some of projects that use OCaml are
 
@@ -67,27 +79,29 @@ Some of projects that use OCaml are
 - [Facebook Reactive](https://facebook.github.io/reason/)
 - [Rust compiler in OCaml](https://github.com/rust-lang/rust/tree/ef75860a0a72f79f97216f8aaa5b388d98da6480/src/boot)
 - [MirageOS](http://mirage.io/)
+- [Irmin](https://github.com/mirage/irmin/tree/master/src/irmin-http)
 
-An `OCaml` based [authserver - name needed](https://github.com/megamsys/authserver) will form the fulcrum for **MegamVertice2.0** user management.
+The learning curve to use OCaml for newer members will be steep, there are no good community projects that help us to build *API* faster. 
 
-Its a simple server that accepts user creation, user updation backed by LDAP.
+Some of the project we found close enough where  [Irmin](https://github.com/mirage/irmin/tree/master/src/irmin-http)
 
-For detailed architecture [Refer slide-7](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing) of Architecture v2.0.
-
-
-### OCaml authserver
+### Rust authserver
 
 We are yet to coin a name for the server, but the purpose is clear as we have worked on [Onboard cloud - abcd project](https://github.com/megamsys/abcd) which used the OAuth technique.
 
-This will be a REST based server (or) `gRPC`  based.  Apparently `gRPC` isn't available yet for OCaml.
+The **authserver** is a simple server that accepts user creation, user updation backed by LDAP.
 
-The OCaml authserver requirements are:
+For detailed architecture [Refer slide-7](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing) of Architecture v2.0.
+
+This will be a REST based server (or) `gRPC`  based.  
+
+The **Rust authserver** requirements are:
 
 #### 1. Secure TLS for system to system communication
 
 We'll generate TLS certificate when the authserver starts and store it in **$MEGAM_HOME/authserver** path. The security key files will be named as **<authserver.key>** and **<authserver.pem>**
 
-If `Nilavu` and the `OCaml authserver` run in different machines then we have to make sure the **$MEGAM_HOME/authserver/keyfiles** are copied over to the `nilavu` machine in the directory mentioned above.
+If `Nilavu` and the `Rust authserver` run in different machines then we have to make sure the **$MEGAM_HOME/authserver/keyfiles** are copied over to the `nilavu` machine in the directory mentioned above.
 
 
 #### 2. API Protection
