@@ -69,7 +69,7 @@ Some of projects that use **Rust** are
 
 - [Habitat.sh](https://habitat.sh)
 
-An `Rust` based [authserver - OJa](https://github.com/megamsys/authserver) will form the fulcrum for **MegamVertice2.0** user management.
+An `Rust` based [authserver - Boomi](https://github.com/megamsys/boomi) will form the fulcrum for **MegamVertice2.0** user management.
 
 We'll had originally intended to `OCaml` as its functional, native and super fast. 
 
@@ -83,25 +83,25 @@ Some of projects that use OCaml are
 
 The learning curve to use OCaml for newer members will be steep, there are no good community projects that help us to build *API* faster. 
 
-Some of the project we found close enough where  [Irmin](https://github.com/mirage/irmin/tree/master/src/irmin-http)
+The project we found close enough was  [Irmin](https://github.com/mirage/irmin/tree/master/src/irmin-http)
 
-### Rust authserver
+### Rust authserver boomi
 
-We are yet to coin a name for the server, but the purpose is clear as we have worked on [Onboard cloud - abcd project](https://github.com/megamsys/abcd) which used the OAuth technique.
+The purpose is clear as we have worked on [Onboard cloud - abcd project](https://github.com/megamsys/abcd) which used the OAuth technique.
 
-The **authserver** is a simple server that accepts user creation, user updation backed by LDAP.
+The **Rust boomi authserver** is a simple server that accepts user creation, user updation backed by LDAP.
 
 For detailed architecture [Refer slide-7](https://docs.google.com/presentation/d/1tzkWbHu6RclA0QWnoEFy9HK0KmISdCjLNfv5QxwJ3Mg/edit?usp=sharing) of Architecture v2.0.
 
 This will be a REST based server (or) `gRPC`  based.  
 
-The **Rust authserver** requirements are:
+The **Rust authserver boomi** requirements are:
 
 #### 1. Secure TLS for system to system communication
 
-We'll generate TLS certificate when the authserver starts and store it in **$MEGAM_HOME/authserver** path. The security key files will be named as **<authserver.key>** and **<authserver.pem>**
+We'll generate TLS certificate when the authserver starts and store it in **$MEGAM_HOME/boomi** path. The security key files will be named as **<boomi.key>** and **<boomi.pem>**
 
-If `Nilavu` and the `Rust authserver` run in different machines then we have to make sure the **$MEGAM_HOME/authserver/keyfiles** are copied over to the `nilavu` machine in the directory mentioned above.
+If `Nilavu` and the `Rust boomi` run in different machines then we have to make sure the **$MEGAM_HOME/boomi/keyfiles** are copied over to the `nilavu` machine in the directory mentioned above.
 
 
 #### 2. API Protection
@@ -113,7 +113,7 @@ In this case we protect systems using `TLS`. The `login`, `account.show` are han
 
 #### 4. REST
 
-Here are the API calls we'll cover, although we'll migrate to `gRPC` in the future, as `OCaml gRPC` seems to be missing.
+Here are the API calls we'll cover, although we'll migrate to `gRPC` in the future (or) today.
 
 
 | Verb | REST                     | Description                                                                                                 |
@@ -134,7 +134,7 @@ Nilavu must have its `User model` trimmed with the `not needed` variables. Pleas
 
 The `User model` must convert `integer` based edge comparison to `boolean based` flags to indicate `active, staged, blocked, suspended, approved`.
 
-The below table is needed for the  internals of the `authserver` which handles user management backed by `LDAP`.
+The below table is needed for the  internals of the `Rust boomi` which handles user management backed by `LDAP`.
 
 This table may not be off much importance to nilavu, since the `AuthDispatcher` will act as a fascade to `User model` which will  feed the correct JSON as it uses today. We may have to trim some of the fields that are not used and which doesn't make sense.
 Please pay attention to that.
