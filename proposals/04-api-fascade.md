@@ -50,7 +50,9 @@ module APIMachinery
   ## raise error if there are no required parms
   raise Nilavu::InvalidParameters unless found_required
 
-  ## build the kubeclient with the  fn_url
+  ## build the kubeclient with the  fn_url and check from where it loads kubeconfig
+  client = Kubeclient::Client.new('http://localhost:8080/api/', "v1")
+
   end
   
   def fn_url(fn)
@@ -76,26 +78,12 @@ end
 
 - `VerticeResource` will be modified to include `ApiMachinery`
 
-- Initialize the client:
+### APIDispatcher
 
-```
-client = Kubeclient::Client.new('http://localhost:8080/api/', "v1")
-
-```
-
-Or without specifying version (it will be set by default to "v1")
-
-```
-client = Kubeclient::Client.new('http://localhost:8080/api/')
-
-```
 
 - `ApiDispatcher` will initialze the `fn`
 
-- `ApiDispatcher` will use a modifier **vertice_resource** which will call the `client`/`action`
-
-
-### APIMachinery 
+- `ApiDispatcher` will use the  **invoke_submit** which will call the `client`/`action`
 
 
 ```ruby
