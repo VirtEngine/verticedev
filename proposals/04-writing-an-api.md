@@ -89,17 +89,136 @@ end
 
 - By default `ApiMachinery` will set `/api` as prefix.
 
-- `ApiDispatcher` will be modified to include `ApiMachinery`
+- `VerticeResource` will be modified to include `ApiMachinery`
 
-- `ApiDispatcher` will initialze a `client` with the `fn`
+- `ApiDispatcher` will initialze the `fn`
 
-- `ApiDispatcher` will use `client` and call the `action`
+- `ApiDispatcher` will use a modifier **vertice_resource** which will call the `client`/`action`
+
+```ruby
+
+
+class ApiDispatcher
+    include VerticeResource
+
+    class ApiDispatcher::NotReached < StandardError
+        def initialize(message)
+            super(message)
+        end
+
+    end
+
+    class ApiDispatcher::Flunked  < StandardError
+        include HttpErrors
+
+        def initialize(response)
+            @response = response
+        end
+
+        def h401?
+            return is_http_401?(@response)
+        end
+
+        def h403?
+            return is_http_403?(@response)
+        end
+
+        def h404?
+            return is_http_404?(@response)
+        end
+    end
+
+    attr_accessor :megfunc, :megact, :parms, :swallow_404
+
+    NAMESPACES           = 'Namespaces'.freeze
+    PODS                 = 'Pods'.freeze
+
+    #explore if there is a way to cut down these strings by dyanmically figuring out from
+    ## "get_" +PODS.downcase
+    GET_POD           = 'get_pod'.freeze
+    CREATE_POD        = 'create_pod'.freeze
+
+    def initialize(ignore_404 = false)
+        @swallow_404 = ignore_404
+    end
+
+    def api_request(jlaz, jmethod, jparams, passthru=false )
+              set_attributes(jlaz, jmethod, jparams, passthru)
+
+        begin
+            Rails.logger.debug "\033[01;35mFASCADE #{megfunc}::#{megact} \33[0;34m"
+
+            raise Nilavu::InvalidParameters if !satisfied_args?(passthru, jparams)
+            invoke_submit
+        rescue Megam::API::Errors::ErrorWithResponse => m
+                      raise_api_errors(ApiDispatcher::Flunked.new(m))
+        rescue StandardError => se
+
+            raise ApiDispatcher::NotReached.new(se.message)
+        end
+    end
+
+
+
+    def meg_function(arg=nil)
+        if arg != nil
+            @megfunc = arg
+        else
+            @megfunc
+        end
+    end
+
+    def meg_action(arg=nil)
+        if arg != nil
+            @megact = arg
+        else
+            @megact
+        end
+    end
+
+    def parameters(arg=nil)
+        if arg != nil
+            @parms = arg
+            @parms = @parms.merge({:host => endpoint })
+        else
+            @parms
+        end
+    end
+
+    private
+
+    def set_attributes(jlaz, jmethod, parms, passthru)
+        meg_function(jlaz)
+        meg_action(jmethod)
+        parameters(parms)
+    end
+
+    ## I think you just want "Authorization Bearer:"
+    def satisfied_args?(passthru, params={})
+        unless passthru
+            return params[:email] && params[:authorization_bearer].present?
+        end
+        return true
+    end
+
+    def endpoint
+        GlobalSetting.http_api
+    end
+
+    def debug_print(jparams)
+        jparams.each do |name, value|
+            Rails.logger.debug("> #{name}: #{value}")
+        end
+    end
+
+    def raise_api_errors(e)
+        return if (e.h404? && swallow_404)
+        raise e
+    end
+end
+```
+
+
 
 - Upon completion from the `ApiDispatcher` the `Kube::xxx` ruby object will be passed back to the layer (`models/api/marketplaces`) which will **convert as appropriate** to the its `scrubber`.
-
-For **marketplaces**  we have another change to make
-
-- The `honeypot` methods that load the data needs to be modified.
-
-
 
