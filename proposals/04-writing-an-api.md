@@ -1,32 +1,15 @@
-# Writing an API
+# API Fascade
 
-The REST api needs to be changed for 2.0 since we'll no longer use the HMAC based approach. We'll rather use BasicAuth (username/password) or AuthenticationToken as [detailed in ](https://github.com/megamsys/verticedev/blob/master/proposals/02-multitenant-authentication.md)
+The REST api needs to be changed for 2.0 since we'll no longer use the HMAC based approach. We'll rather use Authorization:Bearer token as [detailed here](https://github.com/megamsys/verticedev/blob/master/proposals/02-multitenant-authentication.md)
 
 # Solution Overview
 
-Here elaborate the changes needed for the API to work with 2.0. We go over one api which is `marketplaces`.
+Here elaborate the changes needed for the API fascade to work with 2.0. We go over one api which is `marketplaces`.
 
 We will use the rubygem [kubeclient](https://github.com/abonas/kubeclient). 
 
 Please remove **megam_api** and include `kubeclient` in the Gemfile of 2.0 code.
 
-### nilavu.conf
-
-The `http` url will have the value `http://localhost:8080`.
-
-## Initialize the client:
-
-```
-client = Kubeclient::Client.new('http://localhost:8080/api/', "v1")
-
-```
-
-Or without specifying version (it will be set by default to "v1")
-
-```
-client = Kubeclient::Client.new('http://localhost:8080/api/')
-
-```
 ## Marketplace 
 
 Every models gets loaded using an API fascade.
@@ -89,11 +72,31 @@ end
 
 - By default `ApiMachinery` will set `/api` as prefix.
 
+### VerticeResource
+
 - `VerticeResource` will be modified to include `ApiMachinery`
+
+- Initialize the client:
+
+```
+client = Kubeclient::Client.new('http://localhost:8080/api/', "v1")
+
+```
+
+Or without specifying version (it will be set by default to "v1")
+
+```
+client = Kubeclient::Client.new('http://localhost:8080/api/')
+
+```
 
 - `ApiDispatcher` will initialze the `fn`
 
 - `ApiDispatcher` will use a modifier **vertice_resource** which will call the `client`/`action`
+
+
+### APIMachinery 
+
 
 ```ruby
 
@@ -218,6 +221,9 @@ class ApiDispatcher
 end
 ```
 
+### nilavu.conf
+
+The `http` url we'll will have the value `http://localhost:8080`.
 
 
 - Upon completion from the `ApiDispatcher` the `Kube::xxx` ruby object will be passed back to the layer (`models/api/marketplaces`) which will **convert as appropriate** to the its `scrubber`.
