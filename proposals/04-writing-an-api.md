@@ -53,7 +53,7 @@ The apis will have two prefixes to support
 
 Hence we need a module something like this.
 
-```
+```ruby
 module APIMachinery
 
   # form a group of api that will need /oapi prefix.
