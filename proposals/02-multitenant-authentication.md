@@ -1,3 +1,5 @@
+# NOTE: This proposal is parked, as we decided to get rid of `openshift/origin (or) kubernetes`
+
 # Multi tenant authentication: 2.0
 
 *Terminology*,
@@ -15,7 +17,7 @@ We'll use `MegamVertice2.0` to refer 2.0 release of `MegamVertice` based on *ope
 
 For the *Onboard cloud project* we have externalized the auth to be managed using `Google` and have used the identity provider - `OAuthProvider` in openshift.
 
-For MegamVertice2.0 we need ability to create, update users using an identityprovider plugin supported by *Openshift Origin*. 
+For MegamVertice2.0 we need ability to create, update users using an identityprovider plugin supported by *Openshift Origin*.
 
 So once an user is available in a 3rd party system *Openshift Origin* has ability to authenticate and authorize api requests for that user.
 
@@ -23,7 +25,7 @@ As *Openshift Origin* supports `LDAP`, it will directly bind to the `LDAP` for a
 
 This mean we need to build an authentication layer that **Nilavu** & **MOOV** can communicate. **Nilavu** must be able to do user creation, updation using REST based API or gRPC. **MOOV** must be able to authenticate the user.
 
-So we will build an **authserver** backed by LDAP accessed via a REST API. The REST API will talk the same JSON as used by gateway today. So nilavu  doesn't have to worry much. 
+So we will build an **authserver** backed by LDAP accessed via a REST API. The REST API will talk the same JSON as used by gateway today. So nilavu  doesn't have to worry much.
 
 **MOOV** based on *Openshfit Origin* will integrate directly to the identityprovider - LDAP.
 
@@ -44,7 +46,7 @@ Nilavu will use the API and call the **authserver** which is backed by LDAP to c
 
 ### 2. How does MOOV authenticate an API request
 
-**MOOV** uses LDAP bind operation using the `cn=admin,dc=megam,dc=org` distinguished admin userid of LDAP and its password. 
+**MOOV** uses LDAP bind operation using the `cn=admin,dc=megam,dc=org` distinguished admin userid of LDAP and its password.
 
 Any API request **MOOV** receives will need the bearer token which is compared with what is available for that user in `oauthaccesstokens`.
 
@@ -61,9 +63,9 @@ The billing design will be covered in a separate documentation.
 
 We wanted to pick another language that is native and other than *golang*, *scala*, *python*..
 
-### Choice of language 
+### Choice of language
 
-We'll use [Rust lang](https://rust-lang.org) as its native and super fast. 
+We'll use [Rust lang](https://rust-lang.org) as its native and super fast.
 
 Some of projects that use **Rust** are
 
@@ -71,7 +73,7 @@ Some of projects that use **Rust** are
 
 An `Rust` based [authserver - Boomi](https://github.com/megamsys/boomi) will form the fulcrum for **MegamVertice2.0** user management.
 
-We'll had originally intended to `OCaml` as its functional, native and super fast. 
+We'll had originally intended to `OCaml` as its functional, native and super fast.
 
 Some of projects that use OCaml are
 
@@ -81,7 +83,7 @@ Some of projects that use OCaml are
 - [MirageOS](http://mirage.io/)
 - [Irmin](https://github.com/mirage/irmin/tree/master/src/irmin-http)
 
-The learning curve to use OCaml for newer members will be steep, there are no good community projects that help us to build *API* faster. 
+The learning curve to use OCaml for newer members will be steep, there are no good community projects that help us to build *API* faster.
 
 The project we found close enough was  [Irmin](https://github.com/mirage/irmin/tree/master/src/irmin-http)
 

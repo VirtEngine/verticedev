@@ -1,3 +1,5 @@
+# NOTE: This proposal is parked, as we decided to get rid of `openshift/origin (or) kubernetes`
+
 # Managing Templates: 2.0
 
 ## Motivation
