@@ -1,6 +1,6 @@
 # NOTE: This proposal is parked, as we decided to get rid of `openshift/origin (or) kubernetes`. Please refer the new [multitenant-authentication](verticedev/proposals/02-multitenant-authentication.md)
 
-# Multi tenant authentication: 2.0
+# Multi tenant authentication - NOT ACTIVE: 2.0
 
 *Terminology*,
 
